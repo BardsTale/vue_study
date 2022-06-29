@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <button v-on:click="getUserData">조회</button><br>
+    <template v-if="this.dataApdater['userList']">
+      user_count : {{user_count}}<br>
+      user_count2 : {{user_count2}}
+      <table>
+        <tr v-for="(element, idx) in this.dataApdater['userList']" v-bind:key="idx">
+          <td>{{idx+1}}</td>
+          <td>{{element.name}}</td>
+          <td>{{element.userName}}</td>
+        </tr>
+      </table>
+    </template>
+    <template v-else>
+      {{welcome_msg}}<br>
+      user_count : {{user_count}}<br>
+      user_count2 : {{user_count2}}
+    </template>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.0"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script><!-- axios 테스트 -->
+  <script>
+    var vm = {
+      data() {
+        return {
+        	welcome_msg : '',
+          user_count : 0,
+          dataApdater: {}
+        }
+      },
+      computed: { // .
+        user_count2: function() {
+        	//this.dataApdater['userList'].length;의 경우 조회 후 값이 설정이 되기 때문에 단순히 쓸 수 없음.
+          let count = 0;
+          if(this.dataApdater['userList']){
+          	count = this.dataApdater['userList'].length;
+          }
+          return count;
+        }
+      },
+      watch: { 
+        dataApdater: { // data에 선언된 dataApdater 변수를 지켜봄.
+          deep: true, // 변수가 객체 혹은 배열일 경우 내부(중첩) 데이터 변화 감지 옵션.
+          handler(newValue, oldValue) {
+          	// 행위 1. this.dataApdater['userList']의 배열 길이를 사용하여 user_count의 값을 변경.
+            this.user_count = this.dataApdater['userList'].length;
+            
+            // 행위 2. 변경이 감지됨을 콘솔을 통해 알림.
+            console.log('dataApdater 변경 감지');
+          },
+        }
+      },
+      methods: {
+        getUserData() {
+          axios.get('https://jsonplaceholder.typicode.com/users/') //get 요청(select)
+            .then((response)=> { // 응답 성공 시
+              this.dataApdater['userList'] = response.data;
+              
+            })
+            .catch((error)=> { // 응답 실패 시
+              console.log(error);
+            });
+        }
+      },
+      mounted: function () {
+        this.welcome_msg = '조회 버튼을 클릭하세요.';
+      }
+    }
+
+    Vue.createApp(vm).mount('#app'); //vue 3.0에서 변경된 뷰 선언 방식
+  </script>
+</body>
+</html>
