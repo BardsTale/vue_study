@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app">
+    <h1 v-show="ok">안녕하세요!</h1>
+    <button onclick="test()" @click="getUserData">조회</button><br>
+    <template v-if="this.dataApdater['userList']">
+       user_count : {{user_count}} [watch가 변경되는 변수]<br>
+       user_count2 : {{user_count2}} [computed로 생성된 변수]
+      <table>
+        <tr v-for="(element, idx) in this.dataApdater['userList']" v-bind:key="idx" :id="idx">
+          <td>{{idx+1}}</td>
+          <td>{{element.name}}</td>
+          <td>{{element.userName}}</td>
+        </tr>
+      </table>
+      <br>
+      id 역순으로 정렬된 테이블
+      <table>
+        <tr v-for="(element, idx) in sorted_list" v-bind:key="idx">
+          <td>{{element.id}}</td>
+          <td>{{element.name}}</td>
+          <td>{{element.userName}}</td>
+        </tr>
+      </table>
+    </template>
+    <template v-else>
+      {{welcome_msg}}<br>
+      user_count : {{user_count}} [watch가 변경되는 변수]<br>
+      user_count2 : {{user_count2}} [computed로 생성된 변수]
+    </template>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.0"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script><!-- axios 테스트 -->
+  <script>
+    function test(){
+      console.log('hi');
+    }
+    var vm = {
+      data() {
+        return {
+          ok: false,
+          welcome_msg: '',
+          user_count: 0,
+          dataApdater: {}
+        }
+      },
+      computed: { // .
+        user_count2: function () {
+          //computed 활용 예제 1. watch와 비교가 가능한 computed 변수.
+          //this.dataApdater['userList'].length;의 경우 조회 후 값이 설정이 되기 때문에 단순히 쓸 수 없음.
+          let count = 0;
+          if (this.dataApdater['userList']) {
+            count = this.dataApdater['userList'].length;
+          }
+          console.log('computed 실행');
+          return count;
+        },
+        sorted_list: function () {
+          //computed 활용 예제 2. 주어진 배열을 다시 정렬해서 사용하는 경우. 
+          return this.dataApdater['userList'].map(ele => {
+            return { id: ele.id, userName: ele.userName, name: ele.name }
+          }).sort((a, b) => b.id - a.id);
+        }
+      },
+      watch: {
+        dataApdater: { // data에 선언된 dataApdater 변수를 지켜봄.
+          // immediate : true, //지켜보는 변수의 변화와 상관없이 watch 즉시 1회 실행 옵션. 
+          deep: true, // 변수가 객체 혹은 배열일 경우 내부(중첩) 데이터 변화 감지 옵션.
+          handler(newValue, oldValue) {
+            // 행위 1. this.dataApdater['userList']의 배열 길이를 사용하여 user_count의 값을 변경.
+            this.user_count = this.dataApdater['userList'].length;
+
+            // 행위 2. 변경이 감지됨을 콘솔을 통해 알림.
+            console.log('dataApdater 변경 감지');
+          },
+        }
+      },
+      methods: {
+        getUserData() {
+          axios.get('https://jsonplaceholder.typicode.com/users/') //get 요청(select)
+            .then((response) => { // 응답 성공 시
+              this.dataApdater['userList'] = response.data;
+            })
+            .catch((error) => { // 응답 실패 시
+              console.log(error);
+            });
+        }
+      },
+      created: function () {
+        console.log('created');
+      },
+      mounted: function () {
+        this.welcome_msg = '조회 버튼을 클릭하세요.';
+        console.log('mounted');
+      }
+    }
+
+    Vue.createApp(vm).mount('#app'); //vue 3.0에서 변경된 뷰 선언 방식
+  </script>
+</body>
+
+</html>
