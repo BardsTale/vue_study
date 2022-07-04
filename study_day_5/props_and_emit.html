@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <app-header v-bind:mymessage="message"></app-header>
+
+    <!-- Props와 Emit 사용법 -->
+    <!-- Props : <app-content v-bind:프롭스 속성 이름="상위 컴포넌트의 데이터 이름"></app-header> -->
+    <!-- Emit : <app-content v-on:하위 컴포넌트에서 발생한 이벤트 이름="상위 컴포넌트의 메서드 이름"></app-header> -->
+    <app-content v-bind:appnum="num" v-on:emitnum="changeNum"></app-content>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>
+    // 자식컴포넌트 appHeader
+    var appHeader = {
+      template: '<h1>{{ mymessage }}</h1>',
+      props: ['mymessage']
+    }
+
+    // 자식컴포넌트 appContent
+    var appContent = {
+      template: '<div>{{ mynum }}</div>',
+      props: ['appnum'], //부모한테서 받은 num을 data prop으로 appnum의 이름으로 받음.
+      computed: {
+        mynum: function () {
+          return this.appnum *2;
+        }
+      },
+      mounted: function () {
+        this.appnum = 30; // 부모에게서 받은 prop data인 appnum을 값을 변경.
+        this.$emit('emitnum',this.appnum); //부모한테서 받은 이벤트 emitnum을 이벤트 emit으로 실행시켜 부모에게 이벤트 전파, 자식의 prop인 appnum의 값으로 부모의 num을 변경시킬 것임. 
+      }
+    }
+
+    new Vue({
+      el: '#app',
+      components: {
+        'app-header': appHeader,
+        'app-content': appContent
+      },
+      data: {
+        message: 'i love u',
+        num: 10
+      },
+      methods: {
+        changeNum: function (num) {
+          this.num = num;
+        },
+      },
+    })
+  </script>
+</body>
+</html>
