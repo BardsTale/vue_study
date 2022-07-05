@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>v-model</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <!-- 
+        v-model의 용도와 사용예제, 전달인자 바인딩은 무엇?
+
+        v-model
+            - 양방향 데이터 바인딩
+            - form 엘리먼트의 초기 value, checked, selected 속성을 무시하고
+              vue 인스턴스 데이터를 원본소스로 취급
+              컴포넌트의 data옵션안에서 js초기값 선언
+
+        
+        서로 다른 입력요소에 대해 다른 속성과 다른 이벤트를 전송한다.
+
+        text
+            - value 속성
+            - input 이벤트
+        textarea
+            - value 속성
+            - input 이벤트        
+        checkbox
+            - checked 속성
+            - change 이벤트            
+        radio
+            - checked 속성
+            - change 이벤트
+        select
+            - value를 prop
+            - change 이벤트
+     -->
+    <div id="app">
+        <!-- TODO: 인풋 박스를 만들고 입력된 값을 p 태그에 출력해보세요 -->
+        <input type="text" v-model="message" placeholder="text">
+        <p>{{ message }}</p>
+        
+        <br/>
+
+        <textarea v-model="message" placeholder="정상"></textarea>                
+        <textarea placeholder="비정상"> {{ message }} </textarea>
+
+        <br/>
+        
+        <input type="checkbox" id="check" v-model="checked" @input="normalInput" @change="normalChange" />
+        <label for="check">{{ checked }}</label>
+
+        <input type="checkbox" id="check2" v-model.lazy="layChecked" @input="lazyInput" @change="lazyChange" />
+        <label for="check2">{{ layChecked }}</label>
+
+        <br/>
+
+        <input type="checkbox" id="toggle" v-model="toggle" true-value="Y" false-value="N" />
+        <label for="toggle">{{ toggle }}</label>
+
+        <br/>
+
+        <input type="checkbox" id="jack" value="Jack" v-model="checkedNames" />
+        <label for="jack">Jack</label>
+        <input type="checkbox" id="john" value="John" v-model="checkedNames" />
+        <label for="john">John</label>
+        <input type="checkbox" id="mike" value="Mike" v-model="checkedNames" />
+        <label for="mike">Mike</label>
+        <br />
+        <span>Checked names: {{ checkedNames }}</span>
+
+        <br/>
+
+        <input type="radio" id="one" value="One" v-model="radioChecked" />
+        <label for="one">One</label>
+        <input type="radio" id="two" value="Two" v-model="radioChecked" />
+        <label for="two">Two</label>
+        <br/>
+        <span>radioChecked: {{ radioChecked }}</span>
+
+
+        <br/>
+
+        <select v-model="singleSelect">
+            <option disabled value="">Please select one</option>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+        </select>
+        <span>singleSelect: {{ singleSelect }}</span>
+
+
+        <br/>
+
+        <select v-model="multiSelect" multiple>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+        </select>
+        <br />
+        <span>multiSelect: {{ multiSelect }}</span>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {            
+            message: '',
+
+            checked: true, // 단일체크박스는 boolean
+            layChecked: true,
+            toggle: 'Y',
+            checkedNames : [], // 여러개의 체크박스는 배열
+
+            radioChecked: '',
+
+            singleSelect : '',
+            multiSelect : []            
+        },
+        methods: {
+            normalInput(e) {
+                console.log('normalInput');
+                console.log(`this.checked : ${this.checked}`);
+            },
+            normalChange(e) {
+                console.log('normalChange');
+                console.log(`this.checked : ${this.checked}`);
+            },
+            lazyInput(e) {
+                console.log('normalInput');
+                console.log(`this.checked : ${this.checked}`);
+            },
+            lazyChange(e) {
+                console.log('normalChange');
+                console.log(`this.checked : ${this.checked}`);
+            }            
+        }
+    })
+</script>
+</body>
+
+</html>

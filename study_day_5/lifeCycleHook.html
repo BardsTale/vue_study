@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>라이프사이클 훅(Life Cycle Hook)</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+<!-- 
+    Vue에서의 라이프사이클은 Vue 인스턴스나 컴포넌트가 생성되고 소멸되기까지의 단계를 말한다.
+    각 단계별로 실행되는 함수를 라이프사이클 훅 이라고 부른다.
+    
+    모든 라이프사이클 훅은 this 컨텍스트가 바인딩되어 있으므로 data, computed, methods속성에 접근 가능하다.
+    화살표함수로 라이프사이클 메소드를 정의하면 안된다. 이유는 부모컨텍스트를 바인딩하기 때문에 this가 의도한대로 작동하지 않는다.
+    
+    <종류>        
+        1. Creation : 컴포넌트 초기화 단계
+            - 가장 먼저 실행되는 훅
+            - DOM 추가 이전에 수행됨
+            - 유일하게 서버렌더링 중에도 실행 가능
+            - 클라이언트렌더링, 서버렌더링 과정 모두 컴포넌트 설정이 필요하다면 
+              이 단계에서 처리
+            - DOM접근, this.$el 사용 불가능
+            1-1. beforeCreate
+                - 컴포넌트를 초기화한다.
+                - 데이터와 이벤트 설정되지 않은 단계
+            1-2. created
+                - 데이터와 이벤트가 활성화 되므로 엑세스 가능
+                - 데이터 초기화 시 사용
+                - 부모 → 자식 순으로 훅 실행
+        2. Mounting : DOM 삽입단계
+            - 가장 많이 사용            
+            - 렌더링 전 후에 즉시 컴포넌트 엑세스 가능
+            - 단, 서버측렌더링 실행되는 동안은 실행되지 않는다.
+            - 초기 렌더링 직전이나 직후 DOM 접근이나 수정하기 위해 사용            
+            2-1. beforeMount
+                - render 함수가 컴파일된 후, 초기 렌더링이 일어나기 직전에 실행
+            2-2. mounted
+                - 컴포넌트, 템플릿, 렌더링된 DOM에 접근 가능 
+                - DOM을 사용하기 위해 사용
+                - 특히 뷰가 아닌 라이브러리를 통합할 때 사용된다.
+                - 자식 → 부모 순으로 훅 실행
+                - 단, 모든 자식 컴포넌트가 마운트되었음을 보장하지는 않는다.
+                  전체 화면내용이 렌더링이 끝날때 까지 기다리려면, 내부에서 vm.$nextTick를 사용한다.
+        3. Diff 및 Re-rendering 단계
+            - 컴포넌트에서 사용하는 반응형 속성들이 변경되거나 리렌더링될 때마다 호출
+            - 디버깅이나 프로파일링을 위해 컴포넌트가 다시 렌더링되는 시기를 알아야하는 경우 사용
+            - 컴포넌트의 반응형속성들이 언제 변경되는지 알아야 하는 경우에는 computed나 watch 사용            
+            3-1. beforeUpdate
+                - 컴포넌트 데이터 변경, DOM 패치 후 다시 렌더링 되기 직전에 실행
+                - 컴포넌트가 렌더링되기 전 반응형데이터의 신규 상태를 가져와야하는 경우 사용                
+            3-2. updated
+                - DOM이 리 렌더링된 후 실행
+                - property가 변경된 후 DOM에 접근해야될 때 사용
+                - 단, 모든 자식 컴포넌트가 리랜더링되었음을 보장하지는 않는다.
+                  전체 화면내용이 렌더링이 끝날때 까지 기다리려면, 내부에서 vm.$nextTick를 사용한다.
+        4. 해체 단계
+            - 컴포넌트 해체되고 DOM에서 제거될 때 실행
+            4-1. beforeDestory
+                - 해체직전 실행
+                - 이벤트 리스너나 reactive subscriptions를 정리하는데 사용
+            4-2 Destoryed
+                - 컴포넌트 해체 후 호출
+                - 컴포넌트가 파괴된 것을 알아야하는 경우 사용
+
+        5. 기타단계
+            - activated : keep-alive 컴포넌트가 활성화될 때 호출된다.
+            - deactivated : keep-alive 컴포넌트가 비활성화될 때 호출된다.  
+ -->
+    <div id="root" >                
+        <input type="number" ref="refNum" v-model="num"/>            
+        {{ num }}        
+        
+        <Child />
+    </div> 
+    <script>
+        let a = document.querySelector('input[type=number]');
+        console.log(a);
+        // https://beomy.tistory.com/47 [beomy:티스토리]
+        const Child = {
+            template: '<div>자식 DIV</div>',
+            beforeCreate() {
+                console.log('Child Component beforeCreate');
+            },
+            created() {
+                console.log('Child Component Created');
+            },
+            beforeMount() {
+                console.log('Child Component beforeMount');
+            },
+            mounted() {
+                console.log('Child Component Mounted');
+            }
+        };
+
+        const app = new Vue({
+            el: "#root",           
+            data: {
+                num : 0,                
+            },     
+            components: {
+                Child
+            },
+            beforeCreate() {
+                console.log('-----beforeCreate-----');                
+                console.log(`this.num : ${this.num}`);
+                console.log(`num Ref : ${this.$refs.refNum}`);                
+                console.log('----------------------');
+            },
+            created() {
+                console.log('-----created-----');
+                console.log(`this.num : ${this.num}`);
+                console.log(`num Ref : ${this.$refs.refNum}`);                
+                console.log('----------------------');
+            },
+            beforeMount() {
+                console.log('-----beforeMount-----');
+                console.log(`this.num : ${this.num}`);
+                console.log(`num DOM : ${this.$refs.refNum}`);
+                console.log('----------------------');
+            },
+            mounted() {
+                console.log('-----mounted-----');
+                console.log(`this.num : ${this.num}`);
+                console.log(`num DOM : ${this.$refs.refNum}`);
+                console.log('----------------------');
+
+                this.$nextTick(function () {
+                    // 전체 화면내용이 렌더링된 후에 아래의 코드가 실행됩니다.                    
+                })                
+            },
+            beforeUpdate() {
+                console.log('beforeUpdate');
+            },
+            updated() {
+                console.log('updated');
+                this.$nextTick(function () {
+                    // 전체 화면내용이 렌더링된 후에 아래의 코드가 실행됩니다.                    
+                })                     
+            },
+            beforeDestory() {
+                console.log('beforeDestory');
+            },
+            destoryed() {
+                console.log('destoryed');
+            },
+            computed: {
+
+            },
+            watch: {
+
+            },
+        });
+
+    </script>
+</body>
+
+</html>
