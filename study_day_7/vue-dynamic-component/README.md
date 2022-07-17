@@ -1,6 +1,6 @@
 # vue-dynamic-component
 
-## Project setup
+## node modules가 삭제되어 있으므로 아래의 코드를 실행시켜 최초 설치 필요!
 ```
 npm install
 ```
